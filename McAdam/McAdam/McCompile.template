@@ -1,0 +1,139 @@
+#!/bin/bash
+
+alias mv='mv -f'
+alias rm='rm -f'
+alias cp='cp -f'
+
+export LIBDIR="lib"
+export BINDIR="bin"
+
+num=$#
+originalarguments=($@)
+
+last=`expr $num - 1`
+which_prog="McAdam"
+if [ "${originalarguments[$last]}" == "test_likelihood" ]; then
+  echo "Compiling test_likelihood program instead of McAdam"
+  which_prog="test_likelihood"
+  num=$last
+  unset originalarguments[${#originalarguments[@]}-1]
+fi
+
+if [[ $num -eq 0 ]]
+then
+  echo "Compiling with no include file"
+  originalarguments=McAdam.inc
+  #echo -n "Simulate? [true/false] "
+  #read sim
+  sim="false"
+  echo "simulate / .$sim. /" > McAdam.inc
+fi 
+
+testfile=$LIBDIR/libnest3.a
+if [ ! -e $testfile ]
+then
+  make multinest
+  if [ ! -e $testfile ]; then
+    echo "Failed to compile MultiNest, stopping"
+    exit 1
+  fi
+else
+  echo "libnest3.a exists, no need to remake."
+fi  
+
+testfile2=$LIBDIR/libchord.a
+if [ ! -e $testfile2 ]
+then
+  make PolyChord
+  if [ ! -e $testfile2 ]; then
+    echo "Failed to compile PolyChord, stopping"
+    exit 1
+  fi
+else
+  echo "libchord.a exists, no need to remake."
+fi  
+
+testfile3=$BINDIR/genCMBCM
+if [ ! -e $testfile3 ]
+then
+  make genCMBCM
+  if [ ! -e $testfile3 ]; then
+    echo "Failed to compile genCMBCM, stopping"
+    exit 1
+  fi
+else
+  echo "genCMBCM exists, no need to remake."
+fi  
+
+
+echo "  "
+
+touch src/params.f90; mv src/params.f90 params_old.f90
+
+for incfile in ${originalarguments[@]}
+do
+  echo "Compiling "$incfile
+  exefile=`echo $incfile | sed "s/inc/exe/"`
+  if [ "$which_prog" == "test_likelihood" ]; then
+    exefile="test_likelihood.exe"
+  fi
+  touch $exefile; rm $exefile
+  
+  simulate=`grep simulate $incfile | grep '/'  | cut -d'.' -f 2`  
+
+  if [ "$simulate" == "true" ]
+  then
+    
+    echo "simulation has been disabled."
+    exit 1
+
+  else
+  	if [ "$simulate" == "false" ]
+	then
+		cp src/params_MakeData_dummy.f90 src/params_MakeData.f90
+		cp src/MakeData_dummy.f90 src/MakeData.f90
+		echo "Inference mode, using MakeData_dummy.f90"
+	else
+		echo "Error: simulate has value "$simulate
+                exit 1
+	fi 
+  fi
+  
+  if [ $num -ne 0 ]; then 
+    cp $incfile src/params.f90
+  else
+    cp src/params_general.f90 src/params.f90
+    rm McAdam.inc
+  fi
+  
+  echo " "
+  make $which_prog
+  if [ -e $BINDIR/$which_prog ]
+  then
+    mv $BINDIR/$which_prog $BINDIR/$exefile
+  else 
+    echo "Compilation failed: $BINDIR/$exefile not created."
+  fi
+    
+  echo " "
+    
+done
+
+for incfile in ${originalarguments[@]}
+do
+  exefile=`echo $incfile | sed "s/inc/exe/"`
+  if [ "$which_prog" == "test_likelihood" ]; then
+    exefile="test_likelihood.exe"
+  fi
+  if [ -e $BINDIR/$exefile ]
+  then 
+    echo "Compiled "$BINDIR/$exefile" using "$incfile
+  else
+    echo "Failed to compile "$BINDIR/$exefile" using "$incfile
+  fi
+done
+
+mv params_old.f90 src/params.f90
+echo " "
+
+exit 0

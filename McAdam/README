@@ -1,0 +1,80 @@
+Instructions for using McAdam (YCP 17/8/15)
+
+1) Generate a Makefile appropriate for the system you're currently working on.  The 'gen_makefile.sh' script will facilitate this.  To run it, do
+
+./gen_makefile.sh
+
+or
+
+./gen_makefile.sh debug
+
+The first will generate a Makefile with all the optimization switched on, while the second will generate a Makefile with optimization switched off and debugging flags switched on.  Debugging mode will give you much faster compiling and more feedback about errors, but it will be slower to run the compiled program.
+
+The script will ask you which system you're on (case-insensitive), and copy and adjust the template Makefile and McCompile.  It will also produce a file called 'extra.setup' which will contain any extra setup (modules etc) required for your system.
+
+For reference, there is a folder called 'old_makefiles' containing all the old, individual Makefiles and McCompiles.
+
+2) Do 'make clean' and 'make all'.  This should produce 'genCMBCM' and 'getdist' executables in the 'bin' directory, and 'libchord.a' and 'libnest3.a' libraries in the 'lib' directory.  Make sure you do this step when changing systems or switching the debugging/optimization flags on and off.
+
+3) Compile McAdam.  This can now be done *without* an include file, by doing
+
+./McCompile
+
+I think the old way of compiling using an include file, eg
+
+./McCompile example_sz.inc
+
+should still work, but this has not been tested.  
+
+From this point on, the instructions assume you use the first option.  This creates 'McAdam.exe' in the 'bin' directory.
+
+You do *not* need to recompile when changing data, model, sources, etc as all the arrays are now allocatable and parameters are read in from a text file when the executable runs.  Note that compiling using the optimization flags takes quite a long time, especially on Universe, so try to not to recompile unnecessarily!
+
+Also note that reading in from the text file can take quite a long time when there are many sources.  If your include file is called example_sz.inc, McAdam will output an unformatted file called example_sz.dat which you can substitute for the include file on the next run, and this is much faster to read in.  This file is platform-dependent so you it may not work if you copy it to a different system.
+
+When running with PolyChord, make a subdirectory called 'clusters' in the directory where your chains will be output.  PolyChord will try to write files to this directory and crash if it doesn't exist.
+
+4) Run McAdam interactively as a check.  You need to specify a text file which can either be in the old include file format, or just have 'parameter = value' format.  See example_sz.inc and example_sz.mcini for examples of these formats.  Ie
+
+mpirun -np 1 bin/McAdam.exe example_sz.mcini
+
+will run the executable using one node as a quick check.  Set 'verbose' to true in the input file for some output, including the parameters read in from the file - it's worth checking these are correct.  Remember to change the paths to the data, covariance matrix file, and n_root.
+
+5a) If not running via a batch queue, remember to set the stacksize to unlimited ('ulimit -s unlimited' on bash or 'limit stacksize unlimited' on tcsh) for PolyChord, which uses recursive functions, then run via, eg 'mpirun -np 24 bin/McAdam.exe example_sz.mcini > output/example_out'.
+
+5b) Otherwise, modify jobscripts and submit.  There are example jobscripts for HPC and Universe in the 'jobscripts' directory.  You need to change:
+
+- the name of the job from '??TEMPLATE??' to whatever you want
+- the options from '??OPTIONS??' to something like 'example_sz.mcini > output/example_out' (for McAdam) or 'cov_inp/example.inp > output/example_CMB_out' (for genCMBCM)
+- replace MCADAM_DIR in the application name with your directory
+- for Universe, if you are using less than ppn=6 for UV1 ('small' queue) or ppn=8 for UV2 ('small2' queue), also replace ??MEM?? with the amount of memory you need and uncomment this line (see http://www.cosmos.damtp.cam.ac.uk/user-guide/running-jobs-on-the-cosmos-system#section-8 for more info)
+
+Also check the walltime and number of nodes are suited for your needs.  The stacksize should be set to unlimited in the template jobscripts.
+
+6) Example data for testing.  There are some sample data for A611 in the 'data' directory, and the sample 'example_sz.inc' and 'example_sz.mcini' include files are appropriate for this data.  There are chains for a successful run on this data in 'chains/examp/' which you can compare to your run using 'plot_examp.py' (see next point).
+
+7) There is now a Python version of GetDist and the older, Fortran version is deprecated.  GetDist.py is installed on the AP systems under python26 (do 'module load python/python26').  If you're not on the AP systems you can set up a virtual environment to use it:
+
+First, load your favoured version of python, eg:
+'module load python/2.7.3',
+
+then 'virtualenv mypython' sets up a local version of python in a folder
+called mypython under the current working directory.
+
+To select a specific version of python you can do something like:
+
+'virtualenv -p /usr/bin/python2.7 mypython'.
+
+Before installing new packages, you need to activate your new local Python
+by typing:
+'source mypython/bin/activate' in bash
+or
+'source mypython/bin/activate.csh' for tcsh
+and then 'pip install' for each of the following:
+numpy, scipy, six, getdist, matplotlib
+
+You should then be able to run the plot_examp.py script in your virtual environment.  Typing 'deactivate' will get you back to the standard environment and system Python.
+
+Have a look at plot_examp.py and/or http://getdist.readthedocs.org/en/latest/plot_gallery.html for how to use GetDist.py.  McAdam will output a '.paramnames' file in the same place as your chains for ease of using GetDist.py.
+
+8)  There is a 'test_likelihood' program which will calculate likelihoods for either a randomly-generated set of hypercubes (determ = .false.) which it will write out to a file called 'cubes.dat', or for a previously generated set of cubes read in from 'cubes.dat' (determ = .true.).  This is useful for checking whether you've broken the likelihood when making structural changes!  Compile it via eg './McCompile test_likelihood' or './McCompile include.inc test_likelihood'.

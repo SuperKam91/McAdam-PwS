@@ -1,0 +1,205 @@
+PolyChord v 1.4 (lite)
+Will Handley, Mike Hobson & Anthony Lasenby
+wh260@mrao.cam.ac.uk
+arXiv:1502.01856
+arXiv:1506.00171
+Released June 2015
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PolyChord Licence
+=================
+
+Users are required to accept the licence agreement given in LICENCE
+file. PolyChord is free for academic usage
+
+Users are also required to cite the PolyChord papers: 
+arXiv:1502.01856
+arXiv:1506.00171
+in their publications.
+
+This is a 'lite' version of the mainstream PolyChord code. This is less
+flexible than the original code, but is provided for better
+compatibility with code that has been previously running on MultiNest.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+MPI Support
+===========
+
+The code is MPI compatible. To disable the MPI parallelization, 
+set MPI=0 in ./Makefile
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Additional Libraries  
+====================
+
+PolyChord requires no additional libraries to run in linear mode
+To run with MPI it requires the openMPI library
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compilers
+=========
+
+PolyChord compiles with both gfortran and intel compilers. 
+
+Compiler type is chosen in the Makefile with the COMPILER_TYPE flag;
+set
+COMPILER_TYPE = gnu
+for gfortran compilers (free)
+
+set
+COMPILER_TYPE = intel
+for intel compilers (proprietary, much faster)
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Running PolyChord
+=================
+
+Examples
+--------
+First, try an example:
+
+40 dimensional Gaussian
+
+run the commands:
+$  make gaussian
+$  ./bin/gaussian 
+
+
+Examples currently provided are:
+gaussian pyramidal rastrigin twin_gaussian random_gaussian himmelblau
+rosenbrock eggbox half_gaussian gaussian_shell gaussian_shells 
+
+Binary executables are stored in the directory ./bin
+
+
+
+
+To run your own likelihood, it should either be written in fortran, C++, or be callable
+from C++ or fortran.
+
+Fortran likelihoods
+-------------------
+You should place your likelihood code in the function loglikelihood,
+contained in ./likelihoods/my_likelihood.f90. Any setup required (such as reading 
+in input files) should be conducted in the function loglikelihood_setup,
+found in ./likelihoods/my_likelihood.f90.
+In most cases, this will likely just be a call to your own pre-written library.
+
+You will also need to modify polychord.F90 with settings such as
+number of parameters
+
+Your code can be compiled and run with the commands:
+$  make my_likelihood
+$  ./bin/my_likelihood 
+
+Examples can be found in ./likelihoods/examples
+
+C++ likelihoods
+---------------
+You should place your likelihood code in the function cpp_loglikelihood,
+contained in ./likelihoods/my_cpp_likelihood.cpp. Any setup required (such as reading 
+in input files) should be conducted in the function cpp_loglikelihood_setup,
+found in ./likelihoods/my_cpp_likelihood.f90.
+In most cases, this will likely just be a call to your own pre-written library.
+
+Your code can be compiled and run with the commands:
+$  make my_cpp_likelihood
+$  ./bin/my_cpp_likelihood ini/my_cpp_likelihood.ini
+where the input file ini/my_likelihood should be modified accordingly
+
+You will also need to modify polychord.F90 with settings such as
+number of parameters
+
+If you have an additional suggestions to make the c++ wrapper more easy to use, 
+please email Will (wh260@mrao.cam.ac.uk).
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Output files 
+=============
+PolyChord produces several output files depending on which settings are chosen
+
+
+[root].stats
+------------
+Run time statistics
+
+[root].resume
+--------------------------------------
+Files for resuming a stopped run. Semi-human readable.
+This is produced if settings%write_resume=.true.
+This is used if settings%read_resume=.true.
+
+[root].txt
+----------
+File containing weighted posterior samples. Compatable with the format required by
+getdist package which is part of the CosmoMC package. Contains npars+ndims+2 columns:
+
+weight -2*loglike <params> <derived params>
+
+Refer to the following website in order to download or get more information about getdist:
+http://cosmologist.info/cosmomc/readme.html#Analysing
+
+If settings%cluster_posteriors=.true. there are additional cluster files in
+clusters/[root]_<integer>.txt 
+
+[root]_equal_weights.txt
+------------------------
+As above, but the posterior points are equally weighted. This is better for 'eyeballing'
+the posterior, and provides a natural ~4 fold compression of the .txt file. 
+
+
+[root]_phys_live.txt
+--------------------
+Live points in the physical space. This is produced if
+settings%write_phys_live=.true.
+This file contains npars+ndims+1 columns, indicating the physical parameters,
+derived parameters and the log-likelihood. This is useful for monitoring a run
+as it progresses. 
+
+[root].paramnames
+------------
+Parameter names file for compatibility with getdist
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Visualization of PolyChord Output:
+
+[root].txt file created by PolyChord is compatable with the format required by
+getdist package which is part of the CosmoMC package. Refer to the following
+website in order to download or get more information about getdist:
+http://cosmologist.info/cosmomc/readme.html#Analysing
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Common Problems & FAQs:
+
+
+1. PolyChord crashes after segmentation fault.
+
+Try increasing the stack size:
+Linux:    ulimit -s unlimited 
+OSX:      ulimit -s hard 
+& resume your job.
+The slice sampling & clustering steps use a recursive procedure. The default memory
+allocated to recursive procedures is embarassingly small (to guard against memory
+leaks).
+
+
+2. Output files ([root].txt & [root]_equal_weights.dat) files have very few (of order tens) points.
+
+These files only become populated as the algorithm approaches the peak(s) of the
+posterior. Wait for the run to be closer to finishing.
+
+
+3. MPI doesn't help
+
+Currently, the MPI parallelisation will only increase speed for 'slow' likelihoods, 
+i.e. likelihoods where the slice sampling step is the dominant computational cost 
+(compared to the organisation of live points and clustering steps). 

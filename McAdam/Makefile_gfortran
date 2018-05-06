@@ -1,0 +1,48 @@
+DBG= -cpp -ffree-line-length-none -g -O0 -Wall -Wno-tabs -Wno-compare-reals -Wextra -pedantic -fcheck=all -fimplicit-none -fbacktrace -ffpe-trap=invalid,zero,overflow -Wno-unused-parameter -Wno-unused-dummy-argument -Wno-intrinsic-shadow
+FC = mpif90  $(DBG)
+CC = mpicc $(DBG)
+CXX = mpixx $(DBG)
+AR = ar r
+LAPACKLIB = -L${MKLROOT}/lib/intel64 -lmkl_gf_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm
+FFTWLIB = -lfftw3
+EXTRAFLAGS = 
+DEBUGFLAGS = 
+
+IPO = 
+FC += $(IPO)
+CC += $(IPO)
+CXX += $(IPO)
+
+export FC CC CXX LAPACKLIB EXTRAFLAGS FFTWLIB DEBUGFLAGS AR
+ 
+.PHONY: multinest PolyChord McAdam genCMBCM getdist
+ 
+BINDIR = bin
+ 
+all: multinest PolyChord genCMBCM getdist
+ 
+multinest: 
+	gmake -C multinest all  
+      
+PolyChord: 
+	gmake -C PolyChord all  
+
+McAdam: 
+	-rm McAdam 
+	gmake -C src clean 
+	gmake -C src McAdam
+ 
+genCMBCM: 
+	gmake -C src/genCovMat
+ 
+getdist: 
+	gmake -C src/getdist
+ 
+clean: 
+	gmake -C src clean 
+	gmake -C multinest clean
+	gmake -C PolyChord clean
+	gmake -C src/genCovMat clean 
+	gmake -C src/getdist clean 
+	-rm McAdam 
+ 

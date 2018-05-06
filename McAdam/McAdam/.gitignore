@@ -1,0 +1,12 @@
+*.mod
+*.o
+*.a
+*__genmod.f90
+__genmod.f90
+Makefile
+McCompile
+bin
+extra.setup
+src/params.f90
+*~
+

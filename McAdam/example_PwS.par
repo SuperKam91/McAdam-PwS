@@ -1,0 +1,236 @@
+dir_pointings			=  GIT_DIR/pws/Data/Ptgs/
+dir_data			=  GIT_DIR/pws/Data/
+dir_in_maps			=  GIT_DIR/pws/Data/
+dir_masks			=  GIT_DIR/pws/Masks/
+
+first_patch				= -1
+last_patch				= -1
+intermed_cat_name		= DX11cJ2000_AMI11_0000
+final_cat_name		= DX11cJ2000_AMI11_CAT_
+
+#	0 - Blind detection
+#	>0 Number of pixels around the central one * 8 + No of the prior
+#   16 * 6 pix + 3 (= Gauss, Gauss)
+# 99 for contours
+
+nonblind_detection		= 48
+sz_detection			= 1
+assessment_type		= 0
+jeffreys_estimator		= 0
+detection_steps		= 2
+#src_max_scale		= 1.0
+
+#for drawing the posterior contours
+#n_obs_planes			!= 1
+#sz_detection			= 1
+#jeffreys_estimator		= 0
+#assessment_type		= 0
+#nonblind_detection	 % 6	= 3
+
+# to select priors during the contours phase
+# 0 -> Based on the mass-function + selection function
+# 8 -> Non-informative 
+# all other values are illegal
+use_2d_formula = 8
+
+# == 0.0 -> use the likelihood sampling routine
+# != 0.0 -> use the filtering routine
+output_gal_sigma			= 1.0
+
+# < 0.0 -> write contours
+# >= 0.0 -> do the QA
+priorsigma8					= -0.796
+
+#1- log spacing (values are percentages of range; 1st element is first scale)
+# filtering_scales = "1.0,0.8,6.0,8.0,9.0,11.0,13.0,14.0,16.0,17.0,19.0,21.0,23.0,25.0,29.0,33.0,38.0,42.0,46.0,50.0,58.0,67.0,83.0"
+
+#2- harcoded (values are scales in armins)
+# filtering_scales =  "2.0,0.0,0.80,0.90,1.01,1.14,1.28,1.44,1.61,1.81,2.04,2.29,2.58,2.89,3.25,3.66,4.11,4.62,5.19,5.84,6.56,7.38,8.29,9.32,10.47,11.77,13.23,14.88,16.72,18.79,21.12,23.74,26.69,30.00"
+
+#3- linear  spacing (values are percentages of range)
+#filtering_scales =  3.0,6.0,8.0,9.0,11.0,13.0,14.0,16.0,17.0,19.0,21.0,23.0,25.0,29.0,33.0,38.0,42.0,46.0,50.0,58.0,67.0,83.0
+#filtering_scales =  3.0,1.0,50.0,90.0
+
+
+#0- (default) linear with fixed scales (1st element is N of noise report scales)
+# filtering_scales =  "0.0,33.0,0.0,0.80,0.90,1.01,1.14,1.28,1.44,1.61,1.81,2.04,2.29,2.58,2.89,3.25,3.66,4.11,4.62,5.19,5.84,6.56,7.38,8.29,9.32,10.47,11.77,13.23,14.88,16.72,18.79,21.12,23.74,26.69,30.00,33.75,37.97,42.71,48.05"
+filtering_scales =  0.0,33.0,0.0,0.80,0.90,1.01,1.14,1.28,1.44,1.61,1.81,2.04,2.29,2.58,2.89,3.25,3.66,4.11,4.62,5.19,5.84,6.56,7.38,8.29,9.32,10.47,11.77,13.23,14.88,16.72,18.79,21.12,23.74,26.69,30.00,33.75,37.97,42.71,48.05
+
+# subtract sources only if ln gaussianity threshold is smaller than
+#ssub_gaussthres = -0.02
+# always subtract
+ssub_gaussthres = 1.0
+
+# bit 1 -> Switch on/off 0 scale
+# 0/1 -> loose
+# 2/3 -> average
+# 4/5 -> conservative
+# default 0 = loose + 0 scale off
+# maps to "conservative catalogue"
+output_lat				= 0
+
+#output_sigma			= 4.0
+#output_flux_threshold	= 0.0001
+
+#file_mask				= PwS_RejectionMask
+
+sigma_threshold			= 15.0
+
+# < 0.0 , recalibrates de power spectrum
+priormass_min			= 1.0
+
+sz_profile_alpha		= 1.0510
+sz_profile_beta			= 5.4905
+sz_profile_gamma		= 0.3081
+sz_profile_c500			= 1.177
+sz_virial_ratio			= 5.0
+
+szprofpar_alpha_min   = 0.3
+szprofpar_alpha_max   = 3.5
+szprofpar_alpha_bins  = 32
+szprofpar_beta_min    = 3.5
+szprofpar_beta_max    = 7.5
+szprofpar_beta_bins   = 64
+#szprofpar_c500_min    = 1.0
+#szprofpar_c500_max    = 1.0
+#szprofpar_c500_bins   = 1
+
+#Frequencies= 100 143 217 353 545 857 30 44 70
+#BeamsFWHM= 9.65  7.25  4.99  4.82  4.68  4.33  32.534 26.726 13.098
+#sigma_threshold= 4.5 4.5 4.5 4.5 4.5 4.5  
+
+n_obs_planes			= 6
+#n_prior_planes			= 6
+output_units			= 0
+
+obsfreq0000				= 100
+obsfwhm0000				= 9.659
+
+obsfreq0001				= 143
+obsfwhm0001				= 7.220
+
+obsfreq0002				= 217
+obsfwhm0002				= 4.900
+
+obsfreq0003				= 353
+obsfwhm0003				= 4.916
+
+obsfreq0004				= 545
+obsfwhm0004				= 4.675
+
+obsfreq0005				= 857
+obsfwhm0005				= 4.216
+
+#obsfreq0006				= 30
+#obsfwhm0006				= 32.534
+#obsfreq0007				= 44
+#obsfwhm0007				= 26.726
+#obsfreq0008				= 70
+#obsfwhm0008				= 13.098
+
+
+# -------------------------------------------------------------
+# 2 = NFW profile ; 1 - beta default
+# sz_profile			= 2
+
+# Beta
+#sz_virial_ratio		= 2.747
+#src_max_scale			= 12.000
+#priorsrcscale_exp		= 1.54
+#priorsrcscale_min		= 0.35
+#flux_calib_cte			= 0.82
+#priorflux_exp			= 3.20
+
+
+#NGai
+#sz_virial_ratio			= 5.0
+#src_max_scale			= 45.0
+#priorsrcscale_max		= 45.0
+#priorsrcscale_exp		= 0.20
+#priorsrcscale_min		= 1.30
+#flux_calib_cte			= 1.0
+#priorflux_exp			= 1.60
+#priorflux_min			= 0.0005
+#priorflux_max			= 0.20
+
+#
+# Physical priors' limits 
+# Default values
+# To change the values uncomment the line and change the value
+#
+
+# Core radius (Mparsec)
+#priorraddist_min		= 0.001
+#priorraddist_max		= 1.000
+
+# Mass (Solar masses)
+#priormass_min			= 1.0e14
+#priormass_max			= 2.0e15
+
+# Temperature (KeV)
+#priortemp_min			= 0.01
+#priortemp_max			= 20.0
+
+#priorsigma8				= 0.796
+#priorgasmassratio		= 0.10
+
+# 1.5 Gb - Must have a dot (float number)
+#obj_cache_sz			= 1.5
+
+# 1- pressschechter
+# 2- Jenkins
+
+#mass_function		= 2
+
+# redshift
+#priorredshift_max			= 3.5
+
+# -----------------------------------
+
+#n_prior_planes			= 0
+#detection_steps			= 2
+#use_bounds				= 1
+#bound_tol				= 0.0005
+# less than this value is not recommended
+#not_aligned_objs			= 2
+#pws_search_pos			= 0
+#interpolate_scales		= 1
+#use_2d_formula			= 0
+#n_scale_bins			= 2048
+#jeffreys_threshold		= 0.0
+#sigma_threshold			= 4.0
+#average_reject_threshold	= 4.0
+#assessment_type			= 1
+#apodize_maps			= 0
+#jeffreys_estimator		= 1
+
+# Mode - 0; Mean - 1
+
+#CMB=1,DUST=2,FREEFREE=3,SYNCHROT=4,SPINDUST=5
+#priormap_type0000			= 2
+#priormap_freq0000			= 353
+#priormap_maxl0000			= 800.0
+#priormap_noise_rms0000		= -1.0
+
+# These variables control de output
+# How to filter and change the intermediate file
+#
+
+#output_melt_max_dist			= 1.2
+#output_melt_max_dist_sz_limit	= 10.0
+#output_merge_av_gt			= 1
+#0- averages 1- The greater flux
+#output_purity				= 6.0
+#optimal 					= 6.0
+#output_coords				= 2
+# Ecliptic = 0, Equatorial = 1, Galactic = 2
+#output_radius_cal				= 1.0
+#output_lat					= 1
+#output_degrees				= 1
+#output_sigma				= 5.00
+# Optimal = 4.85
+#output_gal_cut				= 14.0
+# PS = 5.0 ; SZ = 14.0 degrees
+#output_gal_sigma				= 10000000.0
+#output_units				= 0
+# 0 - flux mJys / arcmin^2 (no translation); 1 - brightness MJys/Sr; 2 - Antenna K;3 - Thermo K

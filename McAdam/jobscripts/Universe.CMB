@@ -1,0 +1,39 @@
+#!/bin/bash 
+#PBS -N ??TEMPLATE??
+#Name of your job 
+#PBS -j oe 
+# Capture STDOUT and STDERR into one output file 
+#PBS -V 
+# Pass on to job your whole current environment 
+# 
+# Resource specifications - please be as accurate as possible # 
+#PBS -q small2
+#####PBS -l nodes=??NCPU??:ppn=6 
+#PBS -l nodes=3:ppn=8 
+# No. processors required 
+#PBS -l walltime=00:30:00 
+# wall clock time required 
+##PBS -l mem=??MEM??gb 
+# Maximum total physical memory required
+##PBS -W depend=afterany:NUMBER
+# Job depends on previous?
+# 
+# Get the number of allocated CPUs 
+#(It may differ from what you have requested!) 
+NP=$(wc -l $PBS_NODEFILE |cut -d" " -f1) 
+# some defaults 
+OMP_NUM_THREADS=1 
+unset MPI_DSM_DISTRIBUTE MPI_OPENMP_INTEROP MPI_NAP 
+# To switch on the use of unbuffered, single copy transport 
+# in these cases you can set MPI_BUFFER_MAX to 0 
+export MPI_BUFFER_MAX=0 
+# MPI can improve the bandwidth of large messages 
+# if MPI_GRU_CBS is set to 0 
+export MPI_GRU_CBS=0 
+ulimit -Ss unlimited 
+C_LAUNCH="mpirun -np $NP dplace -s1" 
+# cd $PBS_O_WORKDIR 
+######################################################################## 
+# User commands below. Modify accordingly 
+######################################################################## 
+$C_LAUNCH MCADAM_DIR/bin/genCMBCM ??OPTIONS??

@@ -1,0 +1,53 @@
+echo '
+
+CXX= gcc
+CXXL= gcc
+
+LDFLAGS= -L/scratch/ami_planck/Healpix_3.11/src/cxx/generic_gcc/lib -L/usr/local/lib -O3 -fopenmp -s
+
+#LDFLAGS=  -O2 -s
+
+#CFLAGS=-DLINUX -DNORANDOMBACKGROUND -DMYCONTOURSASS -Wno-write-strings -Wformat -I/usr/local/healpix/Healpix_3.11/src/cxx/cxxsupport/ -I/usr/local/healpix/Healpix_3.11/src/cxx/Healpix_cxx/ -I/usr/local/healpix/Healpix_3.11/src/cxx/libsharp/ -I./include -O2 -s -fomit-frame-pointer
+
+CFLAGS= -DAMI -DLINUX -DNORANDOMBACKGROUND -DMYCONTOURSASS  -DFORCEDETECTIONINFORMATIVEPRIORS -Wno-write-strings -Wformat -I/scratch/ami_planck/Healpix_3.11/src/cxx/generic_gcc/include -I./include -O3 -s -fomit-frame-pointer -fopenmp
+
+#CFLAGS=-DLINUX -DNORANDOMBACKGROUND -DMYCONTOURSASS -DFORCEDETECTIONINFORMATIVEPRIORS -Wno-write-strings -Wformat  -I./include -O2 -s -fomit-frame-pointer
+
+OUTPUT_FILE_PWS=PwSCore
+OUTPUT_FILE_MAPC=MapCutter
+
+CPPFLAGS= $(CFLAGS)
+
+OBJFILESPWS= bandmat.o cholesky.o evalue.o fft.o hholder.o jacobi.o mersenne.o mother.o newfft.o newmat1.o newmat2.o newmat3.o newmat4.o newmat5.o newmat6.o\
+newmat7.o newmat8.o newmat9.o newmatex.o newmatnl.o newmatrm.o sfmt.o solution.o sort.o submat.o svd.o FFTW_factory.o FFTW_Storage.o FFTW_Traits.o myexcept.o\
+ZEUS_Debug.o ZEUS_FourierMachine.o ZEUS_GaussianRandomGen.o ZEUS_General.o ZEUS_GlobalValuesStore.o ZEUS_Histogram.o ZEUS_InOut.o ZEUS_InOutBinFile.o\
+ZEUS_InOutHealpixFits.o ZEUS_InOutPipeline.o ZEUS_InOutTxtFile.o ZEUS_Object.o ZEUS_ObjGauss.o ZEUS_ObjSZ.o ZEUS_ObjSZNgai.o ZEUS_PhysicsMath.o ZEUS_Priors.o\
+ZEUS_StorageBaseManip.o ZEUS_WorkSpace.o\
+PWS_Antenna.o PWS_AntGauss.o PWS_BackgroundProcessor.o PWS_BrentMinimizer.o PWS_CatalogueComp.o PWS_GlobalInfoStore.o PWS_Globals.o PWS_Main.o PWS_NestedSampler.o\
+PWS_NestSamplCases.o PWS_NestSamplEllipsBound.o PWS_OddsEval.o PWS_PatchProcessor.o PWS_PowellSnakes.o PWS_Zone.o qa_assess_contours.o
+
+OBJFILESMAPC=  bandmat.o cholesky.o evalue.o fft.o hholder.o jacobi.o mersenne.o mother.o newfft.o newmat1.o newmat2.o newmat3.o newmat4.o newmat5.o newmat6.o\
+newmat7.o newmat8.o newmat9.o newmatex.o newmatnl.o newmatrm.o sfmt.o solution.o sort.o submat.o svd.o FFTW_factory.o FFTW_Storage.o FFTW_Traits.o myexcept.o\
+ZEUS_Debug.o ZEUS_FourierMachine.o ZEUS_GaussianRandomGen.o ZEUS_General.o ZEUS_GlobalValuesStore.o ZEUS_Histogram.o ZEUS_InOut.o ZEUS_InOutBinFile.o\
+ZEUS_InOutHealpixFits.o ZEUS_InOutPipeline.o ZEUS_InOutTxtFile.o ZEUS_Object.o ZEUS_ObjGauss.o ZEUS_ObjSZ.o ZEUS_ObjSZNgai.o ZEUS_PhysicsMath.o ZEUS_Priors.o\
+ZEUS_StorageBaseManip.o ZEUS_WorkSpace.o\
+MC_Antenna.o MC_AntennaGaussian.o MC_HealpixCutter.o MC_HPixMapPatchCutting.o MC_ObjFactory.o MC_PatchFinder.o MC_PixExtractProc.o
+
+all:$(OUTPUT_FILE_PWS) $(OUTPUT_FILE_MAPC)
+
+$(OUTPUT_FILE_PWS): $(OBJFILESPWS)
+	$(CXX) $(OBJFILESPWS) $(LDFLAGS) -lstdc++ -lm -lfftw3 -lhealpix_cxx -lcxxsupport -lcfitsio -lsharp -lc_utils -lfftpack -o $(OUTPUT_FILE_PWS)
+
+$(OUTPUT_FILE_MAPC): $(OBJFILESMAPC)
+	$(CXX) $(OBJFILESMAPC) $(LDFLAGS) -lstdc++ -lm -lfftw3 -lhealpix_cxx -lcxxsupport -lcfitsio -lsharp -lc_utils -lfftpack -o $(OUTPUT_FILE_MAPC)
+
+clean:
+	rm -f *.o $(OUTPUT_FILE_PWS) $(OUTPUT_FILE_MAPC)
+
+' > Makefile.Temp
+
+#gcc -I/usr/local/healpix/Healpix_3.11/src/cxx/cxxsupport/ -I/usr/local/healpix/Healpix_3.11/src/cxx/Healpix_cxx/ -I/usr/local/healpix/Healpix_3.11/src/cxx/libsharp/  -I./include -MM *.cpp >> Makefile.Temp
+
+gcc -I/scratch/ami_planck/Healpix_3.11/src/cxx/generic_gcc/include  -I./include -MM *.cpp >> Makefile.Temp
+
+#gcc  -I./include  -MM *.cpp >> Makefile.Temp

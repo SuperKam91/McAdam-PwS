@@ -1,0 +1,397 @@
+ !======================================================================= 
+!=======================================================================
+!
+!                             McAdam.inc
+
+! Available Priors:
+! ^^^^^^^^^^^^^^^^
+!     0 = Delta function prior (parameter fixed) - (fixedpt,*)
+!     1 = Uniform prior - (xmin,xmax)
+!     2 = Uniform prior in log_10 - (xmin,xmax)
+!     3 = Gaussian prior - (xmean,xstdev)
+!     4 = LogNormal prior - (xmean,xwidth)
+!     5 = Sinusoidal prior, uniform in cos - (thetamin,thetamax)
+!     6 = Cauchy prior - (xmean,xwidth)
+!     7 = Prior for spectral indices from Waldram 07
+!     8 = joint prior for M200 & z using the mass function (with mass_function = 1, 2 & 3 for Evrard, Jenkins & Tinker mass functions respectively)
+!     9 = joint prior on x & y with (x,y) lying uniformly in a triangle defined by the 3 vertices
+!     10 = Exponential prior = lambda * exp(-lambda * x) (min, max, lambda)
+!     11 = Power law prior = x^{-alpha} (min, max, alpha)
+!     12 = Truncated Gaussian prior - (xmean,xstdev,xlimit)
+!     or, for spectral indices only:
+!     12 = Waldram 07 prior multiplied by Gaussian - (xmean, xstdev)
+!     13 = Ratio prior on point source flux
+!     14 = 2D elliptical Gaussian prior in log space on theta_s and Y_{tot} (for Planck GNFW model), (centre, width, angle) for both parameters
+
+! Available Classes of Models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = Clusters
+
+! Which class of models? 1 = clusters
+      ModelClass=1
+
+! Are there objects to be fitted?
+      Atoms = 1
+! How many?
+      NAtoms = 1
+
+! Available (Cluster) Models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+! Available geometry models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = Circular symmetry (2 pars, x/arcsec & y/arcsec)
+!     2 = Elliptical symmetry (4 pars, x,y plus theta/degrees & axisratio)
+! ??? Which geometry model?
+      GeoModel= 1
+      Geo_PriorType(1,1) = 3
+      Geo_Prior(1,1) = 0.d0, 300.d0
+      Geo_PriorType(1,2) = 3
+      Geo_Prior(1,2) = 0.d0, 300.d0
+!     Geo_PriorType(1,3) = 1 ! orientation angle phi
+!     Geo_Prior(1,3) = 0.d0, 180.d0
+!     Geo_PriorType(1,4) = 1 ! ratio of semi-minor to semi-major axes f
+!     Geo_Prior(1,4) = 0.5d0, 1d0
+
+! Available mass models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = NFW profile for mass: (2 pars, M200/h-1 Msun & c)
+!     2 = SIS profile for mass: (1 par, M200/h-1 Msun)
+!     3 = Cored Power Law profile for mass: (3 pars, Mprojected/h-1 Msun, r_c & alpha)
+! ??? Which mass model?
+	MassModel=1
+	NMassPars=2
+! ??? NFW profile
+        NFWstyle(1) = 2
+        Mass_PriorType(1,1) = 1
+        Mass_Prior(1,1) = 0.1, 15.
+        Mass_PriorType(1,2) = 3
+        Mass_Prior(1,2) = 5.d14,2.5d14
+
+! Available gas models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     0 = Hobson and McLachlan survey Beta model (2 pars, y0 and theta_c)
+!     1 = Beta model (for betastyle(1)=2: 3 pars, r_c, beta and Mgas(r200)/h-2 Msun) or (for betastyle(1)=4: 4 pars, r_c, beta , Mtot(r200)/h-1Msun , fgas(r200)/h-1)
+!        (parameter 3 = 3d gas mass within r200 or rmass, or gas fraction,
+!         or total mass within r200 depending on style
+!     2 = Hydrostatic equilibrium with (NFW) potential (1 par, Mgas_200/h-2 Msun)
+!     3 = GNFW_Planck model (6 pars , thetas/arcmin , Ytot/arcmin2, gamma, alpha, beta, c500)
+!     4 = Beta_Atomic/Blobology model (3 pars: thetac/arcsec , beta , central temperature decrement DeltaT0 /K)
+!     5= DM_GNFW model (6 pars: Mtot(r200), fgas(r200), gamma, alpha, beta, c500)
+!     6= Ein_GNFW model (7 pars: Mtot(r200), fgas(r200), gamma, alpha, beta, c500, a_Ein)
+
+! ??? Which gas density profile model?
+        GasModel=5
+        NGasPars=6
+
+! Beta profile
+! ( betastyle 2 TStyle 0 ):
+! Parameters rcore (kpc), beta, gas mass(r200)(h-2Msun)
+!      BetaStyle(1) = 2
+!      TStyle(1) = 0      ! sampling from temperature
+!      Gas_PriorType(1,1) = 1
+!      Gas_Prior(1,1) = 10.0d0, 1000.0d0
+!      Gas_PriorType(1,2) = 1
+!      Gas_Prior(1,2) = 0.3d0, 1.5d0
+!      Gas_PriorType(1,3) = 2
+!      Gas_Prior(1,3) = 1.d12, 5.0d14
+!-------------------------------------------------------------
+! Beta profile and Virial theorem
+! ( betastyle 4 , TStyle 1):
+! or
+! Beta profile and HSE
+! ( betastyle 4 , TStyle 2):
+! 4 Parameters rcore (h-1kpc), beta, tot mass(r200)(h-1Msun), fgas(r200) (h-1)
+!      	BetaStyle(1) = 4
+!       TStyle(1) = 1          ! uses mass - temperature scaling relation to calculate temperature
+!       TStyle(1) = 2          ! uses HSE to calculate temperature
+!      	Gas_PriorType(1,1) = 1
+!      	Gas_Prior(1,1) = 10.0d0, 1000.d0      !rc(h-1Kpc)
+!      	Gas_PriorType(1,2) = 1
+!      	Gas_Prior(1,2) = 0.3d0, 2.5d0         !beta
+!      	Gas_PriorType(1,3) = 2
+!      	Gas_Prior(1,3) = 5.0d13, 5.0d15          !M200(h-1Msun)
+!      	Gas_PriorType(1,4) = 3
+!      	Gas_Prior(1,4) = 0.12, 0.02
+!-------------------------------------------------------------
+! GNFW_Planck model:six parameters: scaling angular radius(thetas /arcmin), total volume
+! integrated Y parameter (Ytot/arcmin^2), gamma, alpha, beta (GNFW shape parameters),
+! c500 (concentration parameter)
+!       Gas_PriorType(1,1) = 14 
+!       Gas_Prior(1,1) = 0.6171, 0.1153, 0.7011         !thetas_Planck(arcmin)
+!       Gas_PriorType(1,2) = 14 
+!       Gas_Prior(1,2) = -2.743, 0.2856, 0.7011         !Ytot_Planck (arcmin2)
+!       Gas_PriorType(1,3) = 0
+!       Gas_Prior(1,3) = 0.3081d0, 0.0   !c_gnfw
+!       Gas_PriorType(1,4) = 0
+!       Gas_Prior(1,4) = 1.0510d0, 0.0   !a_gnfw
+!       Gas_PriorType(1,5) = 0
+!       Gas_Prior(1,5) = 5.4905d0, 0.0   !b_gnfw
+!       Gas_PriorType(1,6) = 0
+!       Gas_Prior(1,6) = 1.177d0, 0.0   !c500_gnfw
+!-------------------------------------------------------------
+!Beta_Atomic/blobology Model:
+!The priors for Beta_Atomic Model are: thetac(arcsec), beta and central temperature decrement (K)
+!     	Gas_PriorType(1,1) = 1
+!      	Gas_Prior(1,1) = 20.0d0, 500.d0      !thetac('')
+!      	Gas_PriorType(1,2) = 1
+!     	Gas_Prior(1,2) = 0.4d0, 2.5d0        !beta
+!      	Gas_PriorType(1,3) = 1
+!       Gas_Prior(1,3) = -3000.d0, -10.d0    !deltaT0(microK)
+!-------------------------------------------------------------
+! DM_GNFW Model
+! The priors for DM_GNFW Model are:  Mtot(r200)and fgas(r200), gamma, alpha, beta (GNFW shape parameters),
+! c500 (concentration parameter)
+        Gas_PriorType(1,1) = 2
+        Gas_Prior(1,1) = 5.0d13, 5.0d15        !M200(Msun)
+        Gas_PriorType(1,2) = 3
+        Gas_Prior(1,2) = 0.12, 0.02         !fgas200
+        Gas_PriorType(1,3) = 0
+        Gas_Prior(1,3) = 0.3081d0, 0.0      !c_gnfw
+        Gas_PriorType(1,4) = 0
+        Gas_Prior(1,4) = 1.0510d0, 0.0      !a_gnfw
+        Gas_PriorType(1,5) = 0
+        Gas_Prior(1,5) = 5.4905d0, 0.0      !b_gnfw
+        Gas_PriorType(1,6) = 0
+        Gas_Prior(1,6) = 1.177d0, 0.0      !c500_gnfw
+!-------------------------------------------------------------
+! Ein_GNFW Model
+! The priors for Ein_GNFW Model are:  Mtot(r200)and fgas(r200), gamma, alpha, beta (GNFW shape parameters),
+! c500 (concentration parameter), a_Ein (DM shape parameter)
+!       Gas_PriorType(1,1) = 2
+!       Gas_Prior(1,1) = 5.0d13, 5.0d15      !M200(Msun)
+!       Gas_PriorType(1,2) = 3
+!       Gas_Prior(1,2) = 0.12 ,0.02         !fgas200
+!       Gas_PriorType(1,3) = 0
+!       Gas_Prior(1,3) = 0.3081d0, 0.0      !c_gnfw
+!       Gas_PriorType(1,4) = 0
+!       Gas_Prior(1,4) = 1.0510d0, 0.0      !a_gnfw
+!       Gas_PriorType(1,5) = 0
+!       Gas_Prior(1,5) = 5.4905d0, 0.0      !b_gnfw
+!       Gas_PriorType(1,6) = 0
+!       Gas_Prior(1,6) = 1.177d0, 0.0       !c500_gnfw
+!	Gas_PriorType(1,7) = 0
+!       Gas_Prior(1,7) = 0.20d0, 0.0       !a_Ein
+!======================================================================================
+! Available Temperature models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     0 = No temperature parameterisation (but need NTpars > 0) (for betastyle=4, models not sampling from temperature)
+!     1 = Isothermal (1 par, T/keV) (for betastyle = 1,2,3)
+!     2 = Polytropic  (2 pars, T/keV & index gamma)
+! ??? Which temperature model?
+	TModel=0
+	NTPars=0
+! Temperature Model (isothermal)
+        T_PriorType(1,1) = 1
+        T_Prior(1,1) = 0.001d0, 20d0
+
+!=======! redshift
+  	z_PriorType(1) = 0
+        z_Prior(1) = 0.3d0 !changed from 0.1 kj sept 17. Simulations weren't created with actual redshift per se
+
+! Number of derived parameters: 33 for isothermal beta model (not checked recently, kj sep 2017), 6 for GNFW_Planck model, 1 for Beta_Atomic/blobology model, 26 for DM_GNFW model and Ein_GNFW model
+        aux_dim = 26
+
+!================================================================
+! Multi data-set analysis:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!-------------------------------------------------------------
+! ??? Use hyperparameter method described in Hobson et al 2002?
+	hyperparameters=1
+! Likelihood hyperparameters
+! The priors for the hyperparameters dictating the weight of the AMI and Planck likelihood respectively. If the hyperparameter
+! method is not being used, these should be commented out. To use it for just the AMI (Planck) dataset, uncomment the first (second) set of priors
+! Also relies on you setting the SZ and PL flags accordingly
+       hyper_PriorType(1,1) = 0
+       hyper_Prior(1,1) = 1.d0      !AMI data
+       hyper_PriorType(1,2) = 0
+       hyper_Prior(1,2) = 1.d0      !Planck data
+!It is STRONGLY recommended you use the same prior type for all hyperparameters
+!================================================================
+
+
+!================================================================
+! SZ analysis parameters
+! ??? Have SZ data?
+      SZ=1
+      Gas=1
+!     Temperature=1          ! when sampling from Temperature
+      Temperature=0          ! when not sampling from Temperature
+! ??? Model Mass
+      MMass=0
+! ??? How many SZ data files?
+      Nvisfiles=6
+! ??? Where are the data?
+      visdatafile(1)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch3b.fits
+      visdatafile(2)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch4b.fits
+      visdatafile(3)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch5b.fits
+      visdatafile(4)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch6b.fits
+      visdatafile(5)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch7b.fits
+      visdatafile(6)=/home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/P0001_ch8b.fits
+
+
+! ??? How many uv points in each file?
+      Nvis = 1043, 1100, 1168, 1257, 1333, 1421
+
+! For minimal memory usage, set large >= the largest of the Nvis values
+! This can be very wasteful but is needed to allow easy array
+! allocation...
+! ??? Maximum vis data array size?
+      large=1421
+! 128x128 map is used in FFT - need it big enough to cover x,y priors
+! ??? Comptonisation map pixel scale / arcsec?
+      cell=30.0
+
+! Need to specify which files have an associated covariance matrix,
+! setting IncludeCMB=0 neglects CMB and just uses 6th column rms
+! reciever noise values in diagonal chisquared computation:
+! ??? Include CMB in likelihood via a non-diagonal covariance matrix?
+      IncludeCMB=1
+
+! ??? Matrix files location? - watch out for byte-swapping...
+      covmatfile = /home/kj316/scratch/svn/ami_planck/McAdam/data/UPP_HIGHSNR_1/Covsacov.txt
+
+! ??? Have Planck data?
+      PL=1
+! Location for PwS parameter file
+      PLdatafile=/home/kj316/scratch/svn/ami_planck/McAdam/PwS_DoubleBack_sim
+! Patch number for this cluster
+      PLPatch=0
+
+! ??? Centre of coordinate system (RA, Dec in degrees)?
+! x,y are measured in arcsec from this, in right handed sense
+      map_x=180.0
+      map_y=50.0
+!
+! set the MassLim (mass in h^{-1}MSun above which we expect to detect all the clusters)
+	MassLim = 2d14
+! set the MassMin (mass in h^{-1}MSun the minimum mass a cluster can have)
+	MassMin = 1d14
+! set the MassMax (mass in h^{-1}MSun the maximum mass a cluster can have)
+	MassMax = 5d15
+! if znow = T, \rho_{crit} is defined to be the present critical density
+! if znow = F, \rho_{crit} is defined to be the critical density at the cluster redshift
+	znow=F
+
+! set what mass function to use (relevant only if using joint prior for M200 & z using the mass function)
+! mass_function = 1, Evrard approximation to Press-Schechter
+! mass_function = 2, Jenkins
+! mass_function = 3, Tinker
+	mass_function = 3
+!=======================================================================
+
+! Weak lensing analysis parameters
+
+! ??? Have weak lensing data?
+      GL=0
+! ??? Allow redshift of sources to vary (for prediction)?
+      Varyzs=0
+! ??? Where is the weak lensing data?
+      GLdatafile=data/GL/sim/090707/2.cat
+! ??? How many galaxies in catalogue?
+      Ngals=0
+
+! ??? Survey mode in GL?
+      survey = F
+! ??? arrange galaxies intelligently
+      arrGal = F
+!no. of pixels in x & y direction
+      nxpix=0
+      nypix=0
+      nxmin=0
+      nymin=0
+!x & y pixel sizes in arcsec
+      pix_sizex=10.546875
+      pix_sizey=10.546875
+!survey length & breadth
+      survey_xl=1.
+      survey_yl=1.
+
+! ??? How many source planes are there? Relevant only if GL=1 & Varyzs=1
+      nzsplanes=0
+
+!=======================================================================
+!   Sources
+!     x,y,flux all to be fitted
+!       -x,y in degrees on the sky
+!       -flux in Jy
+! ??? How many sources are there?
+	NSrc=0
+
+! central frequency
+	nu0(0) = 15.7d9
+
+! prior ranges for the spectral index prior
+	prior_min = -1.d0
+        prior_max = 2.5d0
+
+! Point Source information (RA, dec, flux, spectral index):
+
+! Point Source
+
+
+
+
+
+
+
+
+
+
+! ??? Make simulated data? or infer from real data?
+        simulate = F
+
+! Output sample filenames root_?_?_par.dat,
+! plus statistics root_?_lhood.dat, root_?_evidence.dat
+! ??? Root of output file name?
+! Is this actually used?
+!      root=data/090807gl
+
+! ??? Visualise degeneracies in prior by sampling with no data?
+       SamplePrior = F
+
+! ??? Debugging (may not be very helpful...):
+      verbose = F
+
+!=======================================================================
+! Parameters for nested sampling algorithms
+
+      ! M for MultiNest, P for PolyChord
+      which_sampler=M
+
+      !whether to Importance Nested Sampling
+      n_IS = F
+
+      !whether to do multimodal sampling
+      n_mmodal = T
+
+      !constant efficiency sampling
+      n_ceff = F
+
+      !max no. of live points
+      nest_nlive=100
+
+      !number of repeats (for PolyChord) - set to 0 or leave out for default based on number of slow parameters
+      nest_nrep=0
+
+      !required efficiency
+      !relevant only for the ellipsoidal sampling
+      n_efr=0.8
+
+      !the following parameters should best be left to their default values in
+      !most cases
+
+      !seed for nested sampler, -ve means take it from sys clock
+      n_rseed=-1
+
+      !evidence tolerance factor
+      n_tol=0.5
+
+      !feedback on the sampling progress?
+      n_fb=T
+
+      !max modes expected, for memory allocation
+      n_maxModes=20
+
+      !root for saving posterior files
+      n_root=/home/kj316/scratch/svn/ami_planck/McAdam/chains/test/UPP_HIGHSNR_1_PLAMI_PHYS

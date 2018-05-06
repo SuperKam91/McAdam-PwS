@@ -1,0 +1,643 @@
+! Date: 2014-02-12 18:42:01
+!This is a SZ run 
+! Object identified as A611
+! Weights for P0001_ch8    9157515.0  
+! Weights for P0001_ch5    20294234.0  
+! Weights for P0001_ch4    21449182.0  
+! Weights for P0001_ch7    20460228.0  
+! Weights for P0001_ch6    21860902.0  
+! Weights for P0001_ch3    6497759.0  
+! All sources outside of 0.1 of the primary beam are put as delta priors 
+! All sources below 0.400561540269mJy on the SA map (before PB correction) are set as delta priors 
+!Cluster temp is 9.7000KeV 
+!Cluster redshift is 0.2880 
+! Additional comment : 
+! 24 sources with delta priors on flux and spectral index 
+! 25 total number of sources put into McAdam 
+!=======================================================================
+!
+!                             McAdam.inc
+
+! Available Priors:
+! ^^^^^^^^^^^^^^^^
+!     0 = Delta function prior (parameter fixed) - (fixedpt,*)
+!     1 = Uniform prior - (xmin,xmax)
+!     2 = Uniform prior in log_10 - (xmin,xmax)
+!     3 = Gaussian prior - (xmean,xstdev)
+!     4 = LogNormal prior - (xmean,xwidth)
+!     5 = Sinusoidal prior, uniform in cos - (thetamin,thetamax)
+!     6 = Cauchy prior - (xmean,xwidth)
+!     7 = Prior for spectral indices from Waldram 07
+!     8 = joint prior for M200 & z using the mass function (with mass_function = 1, 2 & 3 for Evrard, Jenkins & Tinker mass functions respectively)
+!     9 = joint prior on x & y with (x,y) lying uniformly in a triangle defined by the 3 vertices
+!     10 = Exponential prior = lambda * exp(-lambda * x) (min, max, lambda)
+!     11 = Power law prior = x^{-alpha} (min, max, alpha)
+!     12 = Truncated Gaussian prior - (xmean,xstdev,xlimit)
+!     or, for spectral indices only:
+!     12 = Waldram 07 prior multiplied by Gaussian - (xmean, xstdev)
+!     13 = Ratio prior on point source flux
+!     14 = 2D elliptical Gaussian prior in log space on theta_s and Y_{tot} (for Planck GNFW model), (centre, width, angle) for both parameters
+
+! ??? Make simulated data? or infer from real data?
+        simulate = F
+
+! Available Classes of Models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = Clusters
+
+! Which class of models? 1 = clusters
+      ModelClass=1
+
+! Are there objects to be fitted?
+      Atoms = 1
+! How many?
+      NAtoms = 1
+
+! Available (Cluster) Models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+! Available geometry models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = Circular symmetry (2 pars, x/arcsec & y/arcsec)
+!     2 = Elliptical symmetry (4 pars, x,y plus theta/degrees & axisratio)
+! ??? Which geometry model?
+      GeoModel=1
+      Geo_PriorType(1,1) = 3 
+      Geo_Prior(1,1) = 0.d0, 60.d0
+      Geo_PriorType(1,2) = 3 
+      Geo_Prior(1,2) = 0.d0, 60.d0
+!      Geo_PriorType(1,3) = 1 ! orientation angle phi
+!      Geo_Prior(1,3) = 0.d0, 180.d0 
+!      Geo_PriorType(1,4) = 1 ! ratio of semi-minor to semi-major axes f
+!      Geo_Prior(1,4) = 0.5d0, 1d0 
+
+! Available mass models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     1 = NFW profile for mass: (2 pars, M200/h-1 Msun & c)
+!     2 = SIS profile for mass: (1 par, M200/h-1 Msun)
+!     3 = Cored Power Law profile for mass: (3 pars, Mprojected/h-1 Msun, r_c & alpha)
+! ??? Which mass model?
+	MassModel=1
+	NMassPars=2
+! ??? NFW profile
+        NFWstyle(1) = 2 
+        Mass_PriorType(1,1) = 1 
+        Mass_Prior(1,1) = 0.1, 15.
+        Mass_PriorType(1,2) = 3 
+        Mass_Prior(1,2) = 5.d14,2.5d14
+!         NFWstyle(2) = 2 
+!         Mass_PriorType(2,1) = 1 
+!         Mass_Prior(2,1) = 0.1, 15. 
+!         Mass_PriorType(2,2) = 3 
+!         Mass_Prior(2,2) = 5.d14,2.5d14
+
+! Available gas models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     0 = Hobson and McLachlan survey Beta model (2 pars, y0 and theta_c)
+!     1 = Beta model (for betastyle(1)=2: 3 pars, r_c, beta and Mgas(r200)/h-2 Msun) or (for betastyle(1)=4: 4 pars, r_c, beta , Mtot(r200)/h-1Msun , fgas(r200)/h-1)
+!        (parameter 3 = 3d gas mass within r200 or rmass, or gas fraction,
+!         or total mass within r200 depending on style
+!     2 = Hydrostatic equilibrium with (NFW) potential (1 par, Mgas_200/h-2 Msun)
+!     3 = GNFW_Planck model (6 pars , thetas/arcmin , Ytot/arcmin2, gamma, alpha, beta, c500)
+!     4 = Beta_Atomic/Blobology model (3 pars: thetac/arcsec , beta , central temperature decrement DeltaT0 /K)
+!     5= DM_GNFW model (6 pars: Mtot(r200), fgas(r200), gamma, alpha, beta, c500)
+
+! ??? Which gas density profile model?
+        GasModel=5
+        NGasPars=6
+
+! Beta profile
+! ( betastyle 2 TStyle 0 ):
+! Parameters rcore (kpc), beta, gas mass(r200)(h-2Msun)
+!      BetaStyle(1) = 2 
+!      TStyle(1) = 0      ! sampling from temperature
+!      Gas_PriorType(1,1) = 1 
+!      Gas_Prior(1,1) = 10.0d0, 1000.0d0 
+!      Gas_PriorType(1,2) = 1 
+!      Gas_Prior(1,2) = 0.3d0, 1.5d0 
+!      Gas_PriorType(1,3) = 2 
+!      Gas_Prior(1,3) = 1.d12, 5.0d14 
+!-------------------------------------------------------------
+! Beta profile and Virial theorem
+! ( betastyle 4 , TStyle 1):
+! or
+! Beta profile and HSE
+! ( betastyle 4 , TStyle 2):
+! 4 Parameters rcore (h-1kpc), beta, tot mass(r200)(h-1Msun), fgas(r200) (h-1)
+!      	BetaStyle(1) = 4
+!       TStyle(1) = 1          ! uses mass - temperature scaling relation to calculate temperature
+!       TStyle(1) = 2          ! uses HSE to calculate temperature
+!      	Gas_PriorType(1,1) = 1 
+!      	Gas_Prior(1,1) = 10.0d0, 1000.d0      !rc(h-1Kpc)
+!      	Gas_PriorType(1,2) = 1 
+!      	Gas_Prior(1,2) = 0.3d0, 2.5d0         !beta
+!      	Gas_PriorType(1,3) = 2 
+!      	Gas_Prior(1,3) = 3.16d13, 5.0d15      !M200(h-1Msun)
+!      	Gas_PriorType(1,4) = 3 
+!      	Gas_Prior(1,4) = 0.123, 0.0308        !fgas200(h-1) updated from 0.0864 to 0.0864/0.7=0.123 also error updated from 0.0216 to 0.0308 on 08/04/2011
+!-------------------------------------------------------------
+! GNFW_Planck model:six parameters: scaling angular radius(thetas /arcmin), total volume
+! integrated Y parameter (Ytot/arcmin^2), gamma, alpha, beta (GNFW shape parameters),
+! c500 (concentration parameter)
+! Joint 2D elliptical Gaussian prior in log-space
+!       Gas_PriorType(1,1) = 14 
+!       Gas_Prior(1,1) = 0.6171, 0.1153, 0.7011         !thetas_Planck(arcmin)
+!       Gas_PriorType(1,2) = 14 
+!       Gas_Prior(1,2) = -2.743, 0.2856, 0.7011         !Ytot_Planck (arcmin2)
+!       Gas_PriorType(1,3) = 0 
+!       Gas_Prior(1,3) = 0.3081d0, 0.0   !c_gnfw
+!       Gas_PriorType(1,4) = 0 
+!       Gas_Prior(1,4) = 1.0510d0, 0.0   !a_gnfw
+!       Gas_PriorType(1,5) = 0 
+!       Gas_Prior(1,5) = 5.4905d0, 0.0   !b_gnfw
+!       Gas_PriorType(1,6) = 0 
+!       Gas_Prior(1,6) = 1.177d0, 0.0   !c500_gnfw
+!-------------------------------------------------------------
+!Beta_Atomic/blobology Model:
+!The priors for Beta_Atomic Model are: thetac(arcsec), beta and central temperature decrement (K)
+!     	Gas_PriorType(1,1) = 1
+!      	Gas_Prior(1,1) = 20.0d0, 500.d0      !thetac('')
+!      	Gas_PriorType(1,2) = 1 
+!     	Gas_Prior(1,2) = 0.4d0, 2.5d0        !beta
+!      	Gas_PriorType(1,3) = 1 
+!       Gas_Prior(1,3) = -3000.d0, -10.d0    !deltaT0(microK)
+!-------------------------------------------------------------
+! DM_GNFW Model
+! The priors for DM_GNFW Model are:  Mtot(r200)and fgas(r200), gamma, alpha, beta (GNFW shape parameters),
+! c500 (concentration parameter)
+        Gas_PriorType(1,1) = 2 
+        Gas_Prior(1,1) = 1.0d14, 6.0d15     !M200(Msun)
+        Gas_PriorType(1,2) = 3 
+        Gas_Prior(1,2) = 0.13 ,0.02         !fgas200
+        Gas_PriorType(1,3) = 0 
+        Gas_Prior(1,3) = 0.3081d0, 0.0      !c_gnfw
+        Gas_PriorType(1,4) = 0 
+        Gas_Prior(1,4) = 1.0510d0, 0.0      !a_gnfw
+        Gas_PriorType(1,5) = 0 
+        Gas_Prior(1,5) = 5.4905d0, 0.0      !b_gnfw
+        Gas_PriorType(1,6) = 0 
+        Gas_Prior(1,6) = 1.177d0, 0.0       !c500_gnfw
+
+!======================================================================================
+
+! Number of derived parameters
+!	aux_dim=33        ! for isothermal beta model
+!	aux_dim=6         ! for GNFW_PLanck model
+!	aux_dim=1         ! for Beta_Atomic/blobology model
+        aux_dim = 25      ! for DM_GNFW model
+
+! Available Temperature models:
+! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+!     0 = No temperature parameterisation (but need NTpars > 0) (for betastyle=4, models not sampling from temperature)
+!     1 = Isothermal (1 par, T/keV) (for betastyle = 1,2,3)
+!     2 = Polytropic  (2 pars, T/keV & index gamma)
+! ??? Which temperature model?
+	TModel=0
+	NTPars=0
+! Temperature Model (isothermal)
+        T_PriorType(1,1) = 3 
+        T_Prior(1,1) = 9.7000d0, 1.0d0
+
+!=======! redshift
+  	z_PriorType(1) = 0 
+        z_Prior(1) = 0.2880d0  ,  0.2880d0 
+================================================================
+
+! SZ analysis parameters
+! ??? Have SZ data?
+      SZ=1
+      Gas=1
+!     Temperature=1          ! when sampling from Temperature
+      Temperature=0          ! when not sampling from Temperature
+! ??? Model Mass
+      MMass=0
+! ??? How many SZ data files?
+      Nvisfiles=6
+! ??? Where are the data?
+      visdatafile(1)=DATADIR/P0001_ch3b.fits
+      visdatafile(2)=DATADIR/P0001_ch4b.fits
+      visdatafile(3)=DATADIR/P0001_ch5b.fits
+      visdatafile(4)=DATADIR/P0001_ch6b.fits
+      visdatafile(5)=DATADIR/P0001_ch7b.fits
+      visdatafile(6)=DATADIR/P0001_ch8b.fits
+
+! ??? How many uv points in each file?
+      Nvis = 873, 962, 1023, 1099, 1147, 979
+
+! For minimal memory usage, set large >= the largest of the Nvis values
+! This can be very wasteful but is needed to allow easy array
+! allocation...
+! ??? Maximum vis data array size?
+      large=1147
+! 128x128 map is used in FFT - need it big enough to cover x,y priors
+! ??? Comptonisation map pixel scale / arcsec?
+      cell=30.0
+
+! Need to specify which files have an associated covariance matrix,
+! setting IncludeCMB=0 neglects CMB and just uses 6th column rms
+! reciever noise values in diagonal chisquared computation:
+! ??? Include CMB in likelihood via a non-diagonal covariance matrix?
+      IncludeCMB=1
+
+! ??? Matrix files location? - watch out for byte-swapping...
+      covmatfile = DATADIR/Covsacov.txt
+
+
+! ??? Centre of coordinate system (RA, Dec in degrees)?
+! x,y are measured in arcsec from this, in right handed sense
+      map_x=120.2475
+      map_y=36.05027778
+!
+! set the MassLim (mass in h^{-1}MSun above which we expect to detect all the clusters)
+	MassLim = 2d14
+! set the MassMin (mass in h^{-1}MSun the minimum mass a cluster can have)
+	MassMin = 1d14
+! set the MassMax (mass in h^{-1}MSun the maximum mass a cluster can have)
+	MassMax = 5d15
+! if znow = T, \rho_{crit} is defined to be the present critical density
+! if znow = F, \rho_{crit} is defined to be the critical density at the cluster redshift
+	znow=F
+
+! set what mass function to use (relevant only if using joint prior for M200 & z using the mass function)
+! mass_function = 1, Evrard approximation to Press-Schechter
+! mass_function = 2, Jenkins
+! mass_function = 3, Tinker
+	mass_function = 3
+!=======================================================================
+
+! Weak lensing analysis parameters
+
+! ??? Have weak lensing data?
+      GL=0
+! ??? Where is the weak lensing data?
+      GLdatafile=data/GL/sim/090707/2.cat
+! ??? How many galaxies in catalogue?
+      Ngals=0
+! ??? Allow redshift of sources to vary (for prediction)?
+      Varyzs=0
+
+! ??? Survey mode in GL?
+      survey = F
+! ??? arrange galaxies intelligently
+      arrGal = F
+!no. of pixels in x & y direction
+      nxpix=0
+      nypix=0
+      nxmin=0
+      nymin=0
+!x & y pixel sizes in arcsec
+      pix_sizex=10.546875
+      pix_sizey=10.546875
+!survey length & breadth
+      survey_xl=1.
+      survey_yl=1.
+
+! ??? How many source planes are there? Relevant only if GL=1 & Varyzs=1
+      nzsplanes=0
+
+!=======================================================================
+!   Sources
+!     x,y,flux all to be fitted
+!       -x,y in degrees on the sky
+!       -flux in Jy
+! ??? How many sources are there?
+	NSrc=25
+
+! central frequency
+	nu0(0) = 15.7d9
+
+! prior ranges for the spectral index prior
+	prior_min = -1.d0
+        prior_max = 2.5d0
+
+! Point Source information (RA, dec, flux, spectral index):
+
+! Point Source 1
+        Src_PriorType(1,1) = 0
+        Src_Prior(1,1) = 1.200329d+02, 0.001389
+        Src_PriorType(1,2) = 0
+        Src_Prior(1,2) = 3.606900d+01, 0.001389
+        Src_PriorType(1,3) = 3
+        Src_Prior(1,3) = 6.406854d-03 , 2.562741d-03
+        nu0(1) = 1.552000d+10
+        Src_PriorType(1,4) = 3
+        Src_Prior(1,4) = -1.192123d-02 , 1.869074d-01
+
+! Point Source 2
+        Src_PriorType(2,1) = 0
+        Src_Prior(2,1) = 1.201693d+02, 0.001389
+        Src_PriorType(2,2) = 0
+        Src_Prior(2,2) = 3.624016d+01, 0.001389
+        Src_PriorType(2,3) = 0
+        Src_Prior(2,3) = 2.916799d-03 , 1.166720d-03
+        nu0(2) = 1.557000d+10
+        Src_PriorType(2,4) = 0
+        Src_Prior(2,4) = 1.419320d+00 , 5.384796d-01
+
+! Point Source 3
+        Src_PriorType(3,1) = 0
+        Src_Prior(3,1) = 1.199632d+02, 0.001389
+        Src_PriorType(3,2) = 0
+        Src_Prior(3,2) = 3.618514d+01, 0.001389
+        Src_PriorType(3,3) = 0
+        Src_Prior(3,3) = 3.019666d-03 , 1.207866d-03
+        nu0(3) = 1.538000d+10
+        Src_PriorType(3,4) = 0
+        Src_Prior(3,4) = -1.386926d+00 , 1.009091d+00
+
+! Point Source 4
+        Src_PriorType(4,1) = 0
+        Src_Prior(4,1) = 1.205026d+02, 0.001389
+        Src_PriorType(4,2) = 0
+        Src_Prior(4,2) = 3.614918d+01, 0.001389
+        Src_PriorType(4,3) = 0
+        Src_Prior(4,3) = 2.857467d-03 , 1.142987d-03
+        nu0(4) = 1.557000d+10
+        Src_PriorType(4,4) = 0
+        Src_Prior(4,4) = 7.258344d-01 , 5.513006d-01
+
+! Point Source 5
+        Src_PriorType(5,1) = 0
+        Src_Prior(5,1) = 1.201793d+02, 0.001389
+        Src_PriorType(5,2) = 0
+        Src_Prior(5,2) = 3.623451d+01, 0.001389
+        Src_PriorType(5,3) = 0
+        Src_Prior(5,3) = 2.272726d-03 , 9.090905d-04
+        nu0(5) = 1.558000d+10
+        Src_PriorType(5,4) = 0
+        Src_Prior(5,4) = 1.031309d+00 , 6.423221d-01
+
+! Point Source 6
+        Src_PriorType(6,1) = 0
+        Src_Prior(6,1) = 1.199835d+02, 0.001389
+        Src_PriorType(6,2) = 0
+        Src_Prior(6,2) = 3.597604d+01, 0.001389
+        Src_PriorType(6,3) = 0
+        Src_Prior(6,3) = 2.397663d-03 , 9.590654d-04
+        nu0(6) = 1.562000d+10
+        Src_PriorType(6,4) = 0
+        Src_Prior(6,4) = 1.998252d-01 , 6.507359d-01
+
+! Point Source 7
+        Src_PriorType(7,1) = 0
+        Src_Prior(7,1) = 1.199516d+02, 0.001389
+        Src_PriorType(7,2) = 0
+        Src_Prior(7,2) = 3.611259d+01, 0.001389
+        Src_PriorType(7,3) = 0
+        Src_Prior(7,3) = 1.870947d-03 , 7.483788d-04
+        nu0(7) = 1.562000d+10
+        Src_PriorType(7,4) = 0
+        Src_Prior(7,4) = 2.058270d+00 , 9.097151d-01
+
+! Point Source 8
+        Src_PriorType(8,1) = 0
+        Src_Prior(8,1) = 1.200486d+02, 0.001389
+        Src_PriorType(8,2) = 0
+        Src_Prior(8,2) = 3.583793d+01, 0.001389
+        Src_PriorType(8,3) = 0
+        Src_Prior(8,3) = 1.800681d-03 , 7.202723d-04
+        nu0(8) = 1.566000d+10
+        Src_PriorType(8,4) = 0
+        Src_Prior(8,4) = -3.814897d-01 , 8.547186d-01
+
+! Point Source 9
+        Src_PriorType(9,1) = 0
+        Src_Prior(9,1) = 1.205515d+02, 0.001389
+        Src_PriorType(9,2) = 0
+        Src_Prior(9,2) = 3.606450d+01, 0.001389
+        Src_PriorType(9,3) = 0
+        Src_Prior(9,3) = 1.701458d-03 , 6.805831d-04
+        nu0(9) = 1.559000d+10
+        Src_PriorType(9,4) = 0
+        Src_Prior(9,4) = 1.108764d+00 , 9.230058d-01
+
+! Point Source 10
+        Src_PriorType(10,1) = 0
+        Src_Prior(10,1) = 1.202289d+02, 0.001389
+        Src_PriorType(10,2) = 0
+        Src_Prior(10,2) = 3.629587d+01, 0.001389
+        Src_PriorType(10,3) = 0
+        Src_Prior(10,3) = 1.422945d-03 , 5.691779d-04
+        nu0(10) = 1.584000d+10
+        Src_PriorType(10,4) = 0
+        Src_Prior(10,4) = -5.650678d-01 , 1.280430d+00
+
+! Point Source 11
+        Src_PriorType(11,1) = 0
+        Src_Prior(11,1) = 1.202461d+02, 0.001389
+        Src_PriorType(11,2) = 0
+        Src_Prior(11,2) = 3.593108d+01, 0.001389
+        Src_PriorType(11,3) = 0
+        Src_Prior(11,3) = 9.141387d-04 , 3.656555d-04
+        nu0(11) = 1.563000d+10
+        Src_PriorType(11,4) = 0
+        Src_Prior(11,4) = 1.053630d+00 , 7.750558d-01
+
+! Point Source 12
+        Src_PriorType(12,1) = 0
+        Src_Prior(12,1) = 1.201848d+02, 0.001389
+        Src_PriorType(12,2) = 0
+        Src_Prior(12,2) = 3.628001d+01, 0.001389
+        Src_PriorType(12,3) = 0
+        Src_Prior(12,3) = 1.474000d-03 , 5.896000d-04
+        nu0(12) = 1.581162d+10
+        Src_PriorType(12,4) = 0
+        Src_Prior(12,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 13
+        Src_PriorType(13,1) = 0
+        Src_Prior(13,1) = 1.203537d+02, 0.001389
+        Src_PriorType(13,2) = 0
+        Src_Prior(13,2) = 3.609409d+01, 0.001389
+        Src_PriorType(13,3) = 0
+        Src_Prior(13,3) = 5.750000d-04 , 2.300000d-04
+        nu0(13) = 1.581162d+10
+        Src_PriorType(13,4) = 0
+        Src_Prior(13,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 14
+        Src_PriorType(14,1) = 0
+        Src_Prior(14,1) = 1.202145d+02, 0.001389
+        Src_PriorType(14,2) = 0
+        Src_Prior(14,2) = 3.586446d+01, 0.001389
+        Src_PriorType(14,3) = 0
+        Src_Prior(14,3) = 4.990000d-04 , 1.996000d-04
+        nu0(14) = 1.581162d+10
+        Src_PriorType(14,4) = 0
+        Src_Prior(14,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 15
+        Src_PriorType(15,1) = 0
+        Src_Prior(15,1) = 1.203207d+02, 0.001389
+        Src_PriorType(15,2) = 0
+        Src_Prior(15,2) = 3.607354d+01, 0.001389
+        Src_PriorType(15,3) = 0
+        Src_Prior(15,3) = 5.136129d-04 , 2.054452d-04
+        nu0(15) = 1.561000d+10
+        Src_PriorType(15,4) = 0
+        Src_Prior(15,4) = -3.092238d-01 , 1.462213d+00
+
+! Point Source 16
+        Src_PriorType(16,1) = 0
+        Src_Prior(16,1) = 1.201604d+02, 0.001389
+        Src_PriorType(16,2) = 0
+        Src_Prior(16,2) = 3.618312d+01, 0.001389
+        Src_PriorType(16,3) = 0
+        Src_Prior(16,3) = 4.280000d-04 , 1.712000d-04
+        nu0(16) = 1.581162d+10
+        Src_PriorType(16,4) = 0
+        Src_Prior(16,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 17
+        Src_PriorType(17,1) = 0
+        Src_Prior(17,1) = 1.201252d+02, 0.001389
+        Src_PriorType(17,2) = 0
+        Src_Prior(17,2) = 3.601024d+01, 0.001389
+        Src_PriorType(17,3) = 0
+        Src_Prior(17,3) = 4.090000d-04 , 1.636000d-04
+        nu0(17) = 1.581162d+10
+        Src_PriorType(17,4) = 0
+        Src_Prior(17,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 18
+        Src_PriorType(18,1) = 0
+        Src_Prior(18,1) = 1.202994d+02, 0.001389
+        Src_PriorType(18,2) = 0
+        Src_Prior(18,2) = 3.617277d+01, 0.001389
+        Src_PriorType(18,3) = 0
+        Src_Prior(18,3) = 3.730000d-04 , 1.492000d-04
+        nu0(18) = 1.581162d+10
+        Src_PriorType(18,4) = 0
+        Src_Prior(18,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 19
+        Src_PriorType(19,1) = 0
+        Src_Prior(19,1) = 1.202868d+02, 0.001389
+        Src_PriorType(19,2) = 0
+        Src_Prior(19,2) = 3.596247d+01, 0.001389
+        Src_PriorType(19,3) = 0
+        Src_Prior(19,3) = 3.470000d-04 , 1.388000d-04
+        nu0(19) = 1.581162d+10
+        Src_PriorType(19,4) = 0
+        Src_Prior(19,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 20
+        Src_PriorType(20,1) = 0
+        Src_Prior(20,1) = 1.201749d+02, 0.001389
+        Src_PriorType(20,2) = 0
+        Src_Prior(20,2) = 3.589287d+01, 0.001389
+        Src_PriorType(20,3) = 0
+        Src_Prior(20,3) = 3.470000d-04 , 1.388000d-04
+        nu0(20) = 1.581162d+10
+        Src_PriorType(20,4) = 0
+        Src_Prior(20,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 21
+        Src_PriorType(21,1) = 0
+        Src_Prior(21,1) = 1.202193d+02, 0.001389
+        Src_PriorType(21,2) = 0
+        Src_Prior(21,2) = 3.610514d+01, 0.001389
+        Src_PriorType(21,3) = 0
+        Src_Prior(21,3) = 3.170000d-04 , 1.268000d-04
+        nu0(21) = 1.581162d+10
+        Src_PriorType(21,4) = 0
+        Src_Prior(21,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 22
+        Src_PriorType(22,1) = 0
+        Src_Prior(22,1) = 1.201642d+02, 0.001389
+        Src_PriorType(22,2) = 0
+        Src_Prior(22,2) = 3.599703d+01, 0.001389
+        Src_PriorType(22,3) = 0
+        Src_Prior(22,3) = 2.650000d-04 , 1.060000d-04
+        nu0(22) = 1.581162d+10
+        Src_PriorType(22,4) = 0
+        Src_Prior(22,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 23
+        Src_PriorType(23,1) = 0
+        Src_Prior(23,1) = 1.203329d+02, 0.001389
+        Src_PriorType(23,2) = 0
+        Src_Prior(23,2) = 3.608933d+01, 0.001389
+        Src_PriorType(23,3) = 0
+        Src_Prior(23,3) = 2.430000d-04 , 9.720000d-05
+        nu0(23) = 1.581162d+10
+        Src_PriorType(23,4) = 0
+        Src_Prior(23,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 24
+        Src_PriorType(24,1) = 0
+        Src_Prior(24,1) = 1.201747d+02, 0.001389
+        Src_PriorType(24,2) = 0
+        Src_Prior(24,2) = 3.597491d+01, 0.001389
+        Src_PriorType(24,3) = 0
+        Src_Prior(24,3) = 2.420000d-04 , 9.680000d-05
+        nu0(24) = 1.581162d+10
+        Src_PriorType(24,4) = 0
+        Src_Prior(24,4) = 5.000000d-01 , 0.000000d+00
+
+! Point Source 25
+        Src_PriorType(25,1) = 0
+        Src_Prior(25,1) = 1.202822d+02, 0.001389
+        Src_PriorType(25,2) = 0
+        Src_Prior(25,2) = 3.603959d+01, 0.001389
+        Src_PriorType(25,3) = 0
+        Src_Prior(25,3) = 2.390000d-04 , 9.560000d-05
+        nu0(25) = 1.581162d+10
+        Src_PriorType(25,4) = 0
+        Src_Prior(25,4) = 5.000000d-01 , 0.000000d+00
+
+! Output sample filenames root_?_?_par.dat,
+! plus statistics root_?_lhood.dat, root_?_evidence.dat
+! ??? Root of output file name?
+! Is this actually used?
+!      root=data/090807gl
+
+! ??? Visualise degeneracies in prior by sampling with no data?
+       SamplePrior = F
+
+! ??? Debugging (may not be very helpful...):
+      verbose = F
+
+!=======================================================================
+! Parameters for nested sampling algorithms
+
+      ! M for MultiNest, P for PolyChord
+      which_sampler=P
+
+      !whether to Importance Nested Sampling
+      n_IS = F
+
+      !whether to do multimodal sampling
+      n_mmodal = T
+
+      !constant efficiency sampling
+      n_ceff = F
+
+      !max no. of live points
+      nest_nlive=100
+
+      !number of repeats (for PolyChord) - set to 0 or leave out for default based on number of slow parameters
+      nest_nrep=0
+
+      !required efficiency
+      !relevant only for the ellipsoidal sampling
+      n_efr=0.8
+
+      !the following parameters should best be left to their default values in
+      !most cases
+
+      !seed for nested sampler, -ve means take it from sys clock
+      n_rseed=-1
+
+      !evidence tolerance factor
+      n_tol=0.5
+
+      !feedback on the sampling progress?
+      n_fb=T
+
+      !max modes expected, for memory allocation
+      n_maxModes=20
+
+      !root for saving posterior files
+      n_root=OUTDIRECTORY
